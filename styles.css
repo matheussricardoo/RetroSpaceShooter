@@ -1,0 +1,36 @@
+.power-ups-legend {
+    position: fixed;
+    left: 20px;
+    bottom: 80px;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 15px;
+    border-radius: 10px;
+    border: 2px solid #5858ff;
+    color: #fff;
+    font-size: 12px;
+}
+
+.power-ups-legend h3 {
+    margin: 0 0 10px 0;
+    color: #5858ff;
+    font-size: 14px;
+    text-shadow: 0 0 5px #5858ff;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 10px 0;
+}
+
+.legend-item .power-up {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;  /* Evita que o ícone encolha */
+}
+
+.legend-item span {
+    opacity: 0.9;
+    line-height: 1.4;
+} 
