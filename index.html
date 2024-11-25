@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Space Shooter Pixel</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: linear-gradient(to bottom, #000000, #1a0f3d);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Press Start 2P', monospace;
+        }
+
+        .game-container {
+            position: relative;
+        }
+
+        canvas {
+            image-rendering: pixelated;
+            border: 4px solid #333;
+            border-radius: 4px;
+            box-shadow: 0 0 15px rgba(88, 88, 255, 0.3);
+        }
+
+        #score {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            color: #fff;
+            font-size: 16px;
+            text-shadow: 0 0 10px #5858ff;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 8px 15px;
+            border-radius: 10px;
+            border: 2px solid #5858ff;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 15px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 12px 20px;
+            border-radius: 10px;
+            border: 2px solid #5858ff;
+            color: #fff;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            font-size: 14px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+        }
+
+        .control-key {
+            background: #333;
+            padding: 6px 12px;
+            border-radius: 5px;
+            border: 1px solid #5858ff;
+            box-shadow: 0 0 8px rgba(88, 88, 255, 0.5);
+            margin: 0 5px;
+            min-width: 20px;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .high-score {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            color: #fff;
+            text-align: right;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 8px 15px;
+            border-radius: 10px;
+            border: 2px solid #5858ff;
+            font-size: 16px;
+        }
+
+        #gameOver {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #5858ff;
+            color: #fff;
+            text-align: center;
+            display: none;
+            font-size: 14px;
+        }
+
+        #restartButton {
+            background: #5858ff;
+            border: none;
+            padding: 8px 15px;
+            color: white;
+            border-radius: 5px;
+            margin-top: 20px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        #restartButton:hover {
+            background: #7272ff;
+        }
+
+        .power-ups {
+            position: fixed;
+            left: 20px;
+            top: 80px;
+            display: flex;
+            gap: 15px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            border-radius: 10px;
+            border: 2px solid #5858ff;
+            box-shadow: 0 0 10px rgba(88, 88, 255, 0.3);
+        }
+
+        .lives {
+            position: fixed;
+            left: 20px;
+            top: 150px;
+            display: flex;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            border-radius: 10px;
+            border: 2px solid #ff5858;
+            box-shadow: 0 0 10px rgba(255, 88, 88, 0.3);
+            z-index: 1000;
+        }
+
+        .life {
+            width: 20px;
+            height: 20px;
+            color: #ff5858;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-shadow: 0 0 5px #ff5858;
+            animation: heartbeat 1.5s ease-in-out infinite;
+            transform-origin: center;
+        }
+
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.1); }
+            50% { transform: scale(1); }
+            75% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .life.empty {
+            color: #666;
+            text-shadow: none;
+            animation: none;
+            opacity: 0.5;
+        }
+
+        .power-up {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, rgba(88, 88, 255, 0.2), rgba(0, 0, 0, 0.8));
+            border: 2px solid #5858ff;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 18px;
+            position: relative;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 5px #5858ff;
+        }
+
+        .power-up.active {
+            background: linear-gradient(135deg, rgba(88, 88, 255, 0.5), rgba(0, 0, 0, 0.9));
+            transform: scale(1.1);
+            box-shadow: 0 0 15px #5858ff;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1.1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1.1); }
+        }
+
+        .power-up::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            font-size: 12px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 4px 8px;
+            border-radius: 4px;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.3s;
+            border: 1px solid #5858ff;
+            box-shadow: 0 0 10px rgba(88, 88, 255, 0.3);
+        }
+
+        .language-selector {
+            position: fixed;
+            bottom: 15px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .language-selector button {
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #5858ff;
+            border-radius: 5px;
+            padding: 8px 15px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #fff;
+            font-family: 'Press Start 2P', monospace;
+            transition: all 0.3s ease;
+        }
+
+        .language-selector button:hover {
+            background: rgba(88, 88, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .language-selector button.active {
+            background: rgba(88, 88, 255, 0.4);
+            box-shadow: 0 0 10px #5858ff;
+        }
+
+        .power-ups-legend {
+            position: fixed;
+            left: 20px;
+            top: 220px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 8px;
+            border-radius: 10px;
+            border: 2px solid #5858ff;
+            box-shadow: 0 0 10px rgba(88, 88, 255, 0.3);
+            color: #fff;
+            font-size: 10px;
+            max-width: 250px;
+            width: auto;
+        }
+
+        .legend-item {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 4px;
+            line-height: 1.2;
+        }
+
+        .power-ups-legend h3 {
+            margin: 0 0 6px 0;
+            font-size: 12px;
+            color: #5858ff;
+            text-shadow: 0 0 5px #5858ff;
+            text-transform: uppercase;
+        }
+
+        .legend-item .power-up {
+            width: 20px;
+            height: 20px;
+            min-width: 20px;
+            font-size: 14px;
+        }
+
+        .legend-item span {
+            font-size: 10px;
+            opacity: 0.9;
+            display: block;
+            padding-right: 5px;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="game-container">
+        <div id="score">SCORE: 0</div>
+        <div class="high-score">
+            HIGH SCORE<br>
+            <span id="highScore">0</span>
+        </div>
+        <canvas id="gameCanvas"></canvas>
+        <div id="gameOver">
+            <h2>GAME OVER</h2>
+            <p>Final Score: <span id="finalScore">0</span></p>
+            <button id="restartButton">PLAY AGAIN</button>
+        </div>
+    </div>
+
+    <div class="controls">
+        <div>
+            <span class="control-key">←</span>
+            <span class="control-key">→</span>
+            Move
+        </div>
+        <div>
+            <span class="control-key">SPACE</span>
+            Atirar
+        </div>
+        <div>
+            <span class="control-key">MOUSE</span>
+            Controle Alternativo
+        </div>
+    </div>
+
+    <div class="power-ups">
+        <div class="power-up" data-type="doubleShot" data-tooltip="Tiro Duplo">×2</div>
+        <div class="power-up" data-type="speedBoost" data-tooltip="Turbo">↑</div>
+    </div>
+
+    <div class="lives">
+        <div class="life">♥</div>
+        <div class="life">♥</div>
+        <div class="life">♥</div>
+    </div>
+
+    <div class="language-selector">
+        <button onclick="changeLanguage('pt-BR')" class="active">PT-BR</button>
+        <button onclick="changeLanguage('en-US')">EN-US</button>
+    </div>
+
+    <div class="power-ups-legend">
+        <h3>Power-Ups</h3>
+        <div class="legend-item">
+            <div class="power-up" data-type="doubleShot">2×</div>
+            <span>Tiro Duplo: 2 projéteis</span>
+        </div>
+        <div class="legend-item">
+            <div class="power-up" data-type="speedBoost">↑</div>
+            <span>Turbo: +Velocidade</span>
+        </div>
+    </div>
+
+    <script src="sprites.js"></script>
+    <script src="stars.js"></script>
+    <script src="translations.js"></script>
+    <script src="player.js"></script>
+    <script src="bullet.js"></script>
+    <script src="enemy.js"></script>
+    <script src="game.js"></script>
+</body>
+</html> 
