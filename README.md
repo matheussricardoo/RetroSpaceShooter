@@ -1,5 +1,3 @@
-# RetroSpaceShooter 🚀
-
 <div align="center">
 
 <img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=5858ff&height=200&section=header&text=RetroSpaceShooter&fontSize=50&fontColor=fff&animation=twinkling&fontAlignY=40&desc=JavaScript%20|%20Pixel%20Art%20|%20Retro%20Style&descAlignY=60&descSize=18">
